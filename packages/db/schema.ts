@@ -7,6 +7,7 @@ import {
   numeric,
   date,
   jsonb,
+  index,
 } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
@@ -65,113 +66,135 @@ export const loanProducts = pgTable("loan_products", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const loans = pgTable("loans", {
-  id: uuid("id").primaryKey().defaultRandom(),
+export const loans = pgTable(
+  "loans",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
 
-  customerId: uuid("customer_id")
-    .notNull()
-    .references(() => customers.id),
+    customerId: uuid("customer_id")
+      .notNull()
+      .references(() => customers.id),
 
-  loanNumber: text("loan_number").notNull().unique(),
+    loanNumber: text("loan_number").notNull().unique(),
 
-  productId: uuid("product_id")
-    .notNull()
-    .references(() => loanProducts.id),
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => loanProducts.id),
 
-  principalAmount: numeric("principal_amount", {
-    precision: 12,
-    scale: 2,
-  }).notNull(),
+    principalAmount: numeric("principal_amount", {
+      precision: 12,
+      scale: 2,
+    }).notNull(),
 
-  outstandingAmount: numeric("outstanding_amount", {
-    precision: 12,
-    scale: 2,
-  }).notNull(),
+    outstandingAmount: numeric("outstanding_amount", {
+      precision: 12,
+      scale: 2,
+    }).notNull(),
 
-  overdueAmount: numeric("overdue_amount", {
-    precision: 12,
-    scale: 2,
-  }).notNull(),
+    overdueAmount: numeric("overdue_amount", {
+      precision: 12,
+      scale: 2,
+    }).notNull(),
 
-  dueDate: date("due_date").notNull(),
+    dueDate: date("due_date").notNull(),
 
-  status: text("status", {
-    enum: [
-      "OVERDUE",
-      "ASSIGNED",
-      "IN_PROGRESS",
-      "PROMISED_TO_PAY",
-      "PARTIALLY_PAID",
-      "PAID",
-      "CLOSED",
-    ],
-  })
-    .notNull()
-    .default("OVERDUE"),
+    status: text("status", {
+      enum: [
+        "OVERDUE",
+        "ASSIGNED",
+        "IN_PROGRESS",
+        "PROMISED_TO_PAY",
+        "PARTIALLY_PAID",
+        "PAID",
+        "CLOSED",
+      ],
+    })
+      .notNull()
+      .default("OVERDUE"),
 
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
 
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("loans_status_idx").on(table.status),
+    index("loans_due_date_idx").on(table.dueDate),
+    index("loans_customer_id_idx").on(table.customerId),
+  ],
+);
 
-export const loanAssignments = pgTable("loan_assignments", {
-  id: uuid("id").primaryKey().defaultRandom(),
+export const loanAssignments = pgTable(
+  "loan_assignments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
 
-  loanId: uuid("loan_id")
-    .notNull()
-    .references(() => loans.id),
+    loanId: uuid("loan_id")
+      .notNull()
+      .references(() => loans.id),
 
-  agentId: uuid("agent_id")
-    .notNull()
-    .references(() => users.id),
+    agentId: uuid("agent_id")
+      .notNull()
+      .references(() => users.id),
 
-  assignedById: uuid("assigned_by_id")
-    .notNull()
-    .references(() => users.id),
+    assignedById: uuid("assigned_by_id")
+      .notNull()
+      .references(() => users.id),
 
-  assignedAt: timestamp("assigned_at").defaultNow().notNull(),
+    assignedAt: timestamp("assigned_at").defaultNow().notNull(),
 
-  unassignedAt: timestamp("unassigned_at"),
+    unassignedAt: timestamp("unassigned_at"),
 
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("loan_assignments_loan_id_idx").on(table.loanId),
+    index("loan_assignments_agent_id_idx").on(table.agentId),
+  ],
+);
 
-export const collectionUpdates = pgTable("collection_updates", {
-  id: uuid("id").primaryKey().defaultRandom(),
+export const collectionUpdates = pgTable(
+  "collection_updates",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
 
-  loanId: uuid("loan_id")
-    .notNull()
-    .references(() => loans.id),
+    loanId: uuid("loan_id")
+      .notNull()
+      .references(() => loans.id),
 
-  agentId: uuid("agent_id")
-    .notNull()
-    .references(() => users.id),
+    agentId: uuid("agent_id")
+      .notNull()
+      .references(() => users.id),
 
-  updateType: text("update_type", {
-    enum: ["CALL", "VISIT", "PAYMENT", "NOTE"],
-  }).notNull(),
+    updateType: text("update_type", {
+      enum: ["CALL", "VISIT", "PAYMENT", "NOTE"],
+    }).notNull(),
 
-  status: text("status", {
-    enum: [
-      "CONTACTED",
-      "VISITED",
-      "PROMISED_TO_PAY",
-      "PARTIAL_PAYMENT",
-      "PAID",
-      "UNREACHABLE",
-      "FOLLOW_UP_REQUIRED",
-    ],
-  }).notNull(),
+    status: text("status", {
+      enum: [
+        "CONTACTED",
+        "VISITED",
+        "PROMISED_TO_PAY",
+        "PARTIAL_PAYMENT",
+        "PAID",
+        "UNREACHABLE",
+        "FOLLOW_UP_REQUIRED",
+      ],
+    }).notNull(),
 
-  amountPaid: numeric("amount_paid", {
-    precision: 12,
-    scale: 2,
-  }),
+    amountPaid: numeric("amount_paid", {
+      precision: 12,
+      scale: 2,
+    }),
 
-  remarks: text("remarks").notNull(),
+    remarks: text("remarks").notNull(),
 
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("collection_updates_loan_id_idx").on(table.loanId),
+    index("collection_updates_agent_id_idx").on(table.agentId),
+  ],
+);
 
 export const activityLogs = pgTable("activity_logs", {
   id: uuid("id").primaryKey().defaultRandom(),

@@ -2,10 +2,10 @@
 	auto_https off
 }
 
-app.localhost {
-	reverse_proxy host.docker.internal:3000
+app.localhost:80 {
+	reverse_proxy web:3000
 }
 
-api.localhost {
-	reverse_proxy host.docker.internal:4000
+api.localhost:80 {
+	reverse_proxy api:4000
 }

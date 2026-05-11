@@ -7,7 +7,27 @@ dotenv.config({
   path: path.resolve(import.meta.dir, "../../.env"),
 });
 
-const connectionString = process.env.DATABASE_URL;
+const {
+  POSTGRES_USER,
+  POSTGRES_PASSWORD,
+  POSTGRES_DB,
+  POSTGRES_HOST,
+  POSTGRES_PORT,
+} = process.env;
+
+if (
+  !POSTGRES_USER ||
+  !POSTGRES_PASSWORD ||
+  !POSTGRES_DB ||
+  !POSTGRES_HOST ||
+  !POSTGRES_PORT
+) {
+  throw new Error("Missing postgres environment variables");
+}
+
+const connectionString =
+  `postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}` +
+  `@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}`;
 
 if (!connectionString) {
   throw new Error("DATABASE_URL is required");

@@ -13,7 +13,8 @@
     "hono": "^4.12.18",
     "jsonwebtoken": "^9.0.3",
     "pg": "^8.20.0",
-    "zod": "^4.4.3"
+    "zod": "^4.4.3",
+    "@collecta/db": "workspace:*"
   },
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.10",
