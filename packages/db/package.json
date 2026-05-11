@@ -3,14 +3,17 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "seed": "bun seed.ts"
   },
   "dependencies": {
+    "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "pg": "^8.20.0"
   },
   "devDependencies": {
-    "@types/pg": "^8.15.6",
+    "@types/pg": "^8.20.0",
+    "bcryptjs": "^3.0.3",
     "drizzle-kit": "^0.31.10",
     "typescript": "^5"
   }
