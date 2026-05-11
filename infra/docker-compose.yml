@@ -1,0 +1,93 @@
+services:
+  web:
+    image: oven/bun:1
+    container_name: collecta-web
+    working_dir: /app/apps/web
+
+    command: sh -c "cd /app && bun install && cd apps/web && bun run dev"
+
+    volumes:
+      - ../:/app
+      - web_node_modules:/app/node_modules
+
+    ports:
+      - "3000:3000"
+
+    environment:
+      NEXT_TELEMETRY_DISABLED: "1"
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "bun",
+          "-e",
+          "const r = await fetch('http://localhost:3000'); if (!r.ok) process.exit(1)"
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 20s
+
+  api:
+    image: oven/bun:1
+    container_name: collecta-api
+    working_dir: /app/apps/api
+
+    command: sh -c "cd /app && bun install && cd /app/apps/api && bun run dev"
+
+    volumes:
+      - ../:/app
+      - api_node_modules:/app/node_modules
+
+    ports:
+      - "4000:4000"
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "bun",
+          "-e",
+          "const r = await fetch('http://localhost:4000/health'); if (!r.ok) process.exit(1)"
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: collecta-postgres
+
+    environment:
+      POSTGRES_USER: collecta
+      POSTGRES_PASSWORD: collecta
+      POSTGRES_DB: collecta
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - collecta_postgres:/var/lib/postgresql/data
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: collecta-caddy
+
+    depends_on:
+      - web
+      - api
+
+    ports:
+      - "80:80"
+
+    volumes:
+      - "./caddy/Caddyfile:/etc/caddy/Caddyfile:ro"
+
+    restart: unless-stopped
+
+volumes:
+  collecta_postgres: {}
+  web_node_modules: {}
+  api_node_modules: {}

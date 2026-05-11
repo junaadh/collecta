@@ -1,0 +1,18 @@
+{
+  "name": "collecta",
+  "private": true,
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev:web": "bun --cwd apps/web dev",
+    "dev:api": "bun --cwd apps/api dev",
+    "dev": "bun run dev:api & bun run dev:web",
+    "typecheck": "bun --cwd apps/web typecheck && bun --cwd apps/api typecheck",
+    "lint": "bun --cwd apps/web lint",
+    "up": "./scripts/up.sh",
+    "down": "./scripts/down.sh"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5"
+  }
+}
