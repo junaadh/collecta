@@ -58,7 +58,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Global unauthorized / auth-changed events
   useEffect(() => {
-    const handleUnauthorized = () => {
+    const handleUnauthorized = async () => {
+      await collecta.logout();
+
       setUser(null);
       if (window.location.pathname !== "/login") {
         router.replace("/login");

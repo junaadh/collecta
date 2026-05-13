@@ -101,98 +101,58 @@ export class CollectaClient {
     path: string,
     options: RequestInit = {},
   ): Promise<T> {
-    // const response = await this.fetcher(`${this.baseUrl}${path}`, {
-    //   ...options,
-    //   credentials: "same-origin",
-    //   headers: {
-    //     Accept: "application/json",
-    //     ...(options.body ? { "Content-Type": "application/json" } : {}),
-    //     ...options.headers,
-    //   },
-    // });
+    const response = await this.fetcher(`${this.baseUrl}${path}`, {
+      ...options,
+      credentials: "same-origin",
+      headers: {
+        Accept: "application/json",
+        ...(options.body ? { "Content-Type": "application/json" } : {}),
+        ...options.headers,
+      },
+    });
 
-    // let json: ApiResponse<T>;
+    let json: ApiResponse<T>;
 
-    // try {
-    //   json = (await response.json()) as ApiResponse<T>;
-    // } catch {
-    //   if (response.status === 401) {
-    //     dispatchUnauthorized();
-    //   }
-
-    //   if (response.status === 403) {
-    //     dispatchAuthChanged();
-    //   }
-
-    //   throw new CollectaClientError(
-    //     response.status,
-    //     "Invalid Api response",
-    //     undefined,
-    //     response.status,
-    //   );
-    // }
-
-    // if (!response.ok || json.error) {
-    //   if (response.status === 401) {
-    //     dispatchUnauthorized();
-    //   }
-
-    //   if (response.status === 403) {
-    //     dispatchAuthChanged();
-    //   }
-
-    //   throw new CollectaClientError(
-    //     json.error?.code ?? response.status,
-    //     json.error?.message ?? "Request failed",
-    //     json.error?.detail,
-    //     response.status,
-    //     json.meta.requestId,
-    //   );
-    // }
-
-    // console.log(`collecta: request id ${json.meta.requestId}`);
-    // console.log(`collecta: timestamp ${json.meta.timestamp}`);
-
-    // return json.data as T;
-    const controller = new AbortController();
-    // 10 s hard ceiling — prevents the spinner hanging forever on mobile
-    const timer = setTimeout(() => controller.abort(), 10_000);
-
-    let res: Response;
     try {
-      res = await this.fetcher(`${this.baseUrl}${path}`, {
-        ...options,
-        signal: controller.signal,
-        credentials: "same-origin",
-        headers: { "Content-Type": "application/json", ...options.headers },
-      });
-    } finally {
-      clearTimeout(timer);
-    }
+      json = (await response.json()) as ApiResponse<T>;
+    } catch {
+      if (response.status === 401) {
+        dispatchUnauthorized();
+      }
 
-    if (res.status === 401) {
-      dispatchUnauthorized();
+      if (response.status === 403) {
+        dispatchAuthChanged();
+      }
+
       throw new CollectaClientError(
-        res.status,
+        response.status,
         "Invalid Api response",
         undefined,
-        res.status,
+        response.status,
       );
     }
 
-    if (res.status === 403) {
-      dispatchAuthChanged();
-    }
+    if (!response.ok || json.error) {
+      if (response.status === 401) {
+        dispatchUnauthorized();
+      }
 
-    const json: ApiResponse<T> = await res.json();
-    if (json.error)
+      if (response.status === 403) {
+        dispatchAuthChanged();
+      }
+
       throw new CollectaClientError(
-        json.error?.code ?? res.status,
+        json.error?.code ?? response.status,
         json.error?.message ?? "Request failed",
         json.error?.detail,
-        res.status,
+        response.status,
         json.meta.requestId,
       );
+    }
+
+    console.log(`collecta: request id ${json.meta.requestId}`);
+    console.log(`collecta: timestamp ${json.meta.timestamp}`);
+
     return json.data as T;
   }
 
