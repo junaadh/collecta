@@ -1,20 +1,37 @@
+x-app-image: &app-image
+  build:
+    context: ..
+    dockerfile: infra/Dockerfile
+    target: dev
+  image: collecta-dev:latest
+
+x-app-volumes: &app-volumes
+  - ../apps/api:/app/apps/api
+  - ../apps/web:/app/apps/web
+  - ../packages:/app/packages
+  - ../package.json:/app/package.json:ro
+  - ../bun.lock:/app/bun.lock:ro
+  - ../tsconfig.json:/app/tsconfig.json:ro
+  - ../.env:/app/.env:ro
+
 services:
   web:
-    image: oven/bun:1
+    <<: *app-image
     container_name: collecta-web
     working_dir: /app/apps/web
 
-    command: sh -c "cd /app && bun install && cd apps/web && bun run dev"
+    command: bun run dev
 
-    volumes:
-      - ../:/app
-      - web_node_modules:/app/node_modules
+    volumes: *app-volumes
 
     ports:
       - "3000:3000"
 
     environment:
       NEXT_TELEMETRY_DISABLED: "1"
+      NEXT_PUBLIC_SHOW_DEMO_ACCOUNTS: ${NEXT_PUBLIC_SHOW_DEMO_ACCOUNTS:-false}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-/api/v1}
+      JWT_SECRET: ${JWT_SECRET}
 
     healthcheck:
       test:
@@ -30,21 +47,29 @@ services:
       start_period: 20s
 
   api:
-    image: oven/bun:1
+    <<: *app-image
     container_name: collecta-api
     working_dir: /app/apps/api
 
-    command: sh -c "cd /app && bun install && cd /app/apps/api && bun run dev"
+    command: bun run dev
 
-    volumes:
-      - ../:/app
-      - api_node_modules:/app/node_modules
+    volumes: *app-volumes
 
     ports:
       - "4000:4000"
 
     environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: ${PORT:-4000}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-8h}
+      AUTH_MAX_FAILED_LOGIN_ATTEMPTS: ${AUTH_MAX_FAILED_LOGIN_ATTEMPTS:-5}
+      AUTH_LOCK_DURATION_SECONDS: ${AUTH_LOCK_DURATION_SECONDS:-900}
+      POSTGRES_USER: ${POSTGRES_USER:-collecta}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-collecta}
+      POSTGRES_DB: ${POSTGRES_DB:-collecta}
       POSTGRES_HOST: postgres
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
 
     healthcheck:
       test:
@@ -52,7 +77,7 @@ services:
           "CMD",
           "bun",
           "-e",
-          "const r = await fetch('http://localhost:4000/health'); if (!r.ok) process.exit(1)"
+          "const r = await fetch('http://localhost:4000/api/v1/health'); if (!r.ok) process.exit(1)"
         ]
       interval: 5s
       timeout: 3s
@@ -64,9 +89,9 @@ services:
     container_name: collecta-postgres
 
     environment:
-      POSTGRES_USER: collecta
-      POSTGRES_PASSWORD: collecta
-      POSTGRES_DB: collecta
+      POSTGRES_USER: ${POSTGRES_USER:-collecta}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-collecta}
+      POSTGRES_DB: ${POSTGRES_DB:-collecta}
 
     ports:
       - "5432:5432"
@@ -92,5 +117,3 @@ services:
 
 volumes:
   collecta_postgres: {}
-  web_node_modules: {}
-  api_node_modules: {}

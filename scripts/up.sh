@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-docker compose --env-file .env -f infra/docker-compose.yml up --build --remove-orphans -d
+COMPOSE=(docker compose --env-file .env -f infra/docker-compose.yml)
+
+"${COMPOSE[@]}" build web
+"${COMPOSE[@]}" up --remove-orphans -d

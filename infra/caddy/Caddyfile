@@ -2,10 +2,14 @@
 	auto_https off
 }
 
-app.localhost:80 {
-	reverse_proxy web:3000
-}
+:80 {
+	handle /api/* {
+		reverse_proxy api:4000 {
+			header_up X-Real-IP {remote_host}
+			header_up X-Forwarded-For {remote_host}
+			header_up X-Forwarded-Proto {scheme}
+		}
+	}
 
-api.localhost:80 {
-	reverse_proxy api:4000
+	reverse_proxy web:3000
 }
