@@ -14,11 +14,11 @@ export default function SupervisorLayout({
 
   return (
     <RealtimeProvider>
-      <div className="flex h-screen flex-col bg-[#fafafa] dark:bg-[#09090b] overflow-hidden">
+      <div className="flex h-dvh flex-col bg-[#fafafa] dark:bg-[#09090b] overflow-hidden">
         <TopBar menuOpen={openMenu} menuOpenAction={setOpenMenu} />
         <div className="flex flex-1 overflow-hidden">
           <SupervisorSidebar menuOpen={openMenu} />
-          <main className="min-w-0 flex-1 overflow-y-auto">{children}</main>
+          <main className="min-w-0 flex-1 overflow-y-auto overscroll-contain pb-[env(safe-area-inset-bottom)]">{children}</main>
         </div>
       </div>
     </RealtimeProvider>

@@ -18,9 +18,9 @@ export function AgentSidebar({ menuOpen }: { menuOpen: boolean }) {
 
   return (
     <aside
-      className={`fixed h-full w-52 bg-[#fafafa] dark:bg-[#09090b] border-r border-[#e4e4e7] dark:border-[#1e1e21] flex flex-col shrink-0 transition-transform duration-200 sm:static sm:translate-x-0 ${menuOpen ? "translate-x-0" : "-translate-x-full"}`}
+      className={`fixed top-12 bottom-0 left-0 z-10 w-52 bg-[#fafafa] dark:bg-[#09090b] border-r border-[#e4e4e7] dark:border-[#1e1e21] flex flex-col shrink-0 transition-transform duration-200 sm:static sm:translate-x-0 pb-[env(safe-area-inset-bottom)] ${menuOpen ? "translate-x-0" : "-translate-x-full"}`}
     >
-      <nav className="flex-1 py-4">
+      <nav className="min-h-0 flex-1 overflow-y-auto overscroll-contain py-4">
         <div className="px-3 mb-2">
           <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-700 uppercase tracking-[0.15em]">
             Agent
@@ -54,7 +54,7 @@ export function AgentSidebar({ menuOpen }: { menuOpen: boolean }) {
         </ul>
       </nav>
 
-      <div className="p-3 border-t border-[#e4e4e7] dark:border-[#1e1e21] space-y-3">
+      <div className="shrink-0 p-3 border-t border-[#e4e4e7] dark:border-[#1e1e21] space-y-3">
         {user && (
           <div>
             <div className="text-[12px] font-medium text-zinc-900 dark:text-zinc-200">

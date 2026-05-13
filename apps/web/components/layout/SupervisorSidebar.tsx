@@ -34,9 +34,9 @@ export function SupervisorSidebar({ menuOpen }: { menuOpen: boolean }) {
 
   return (
     <aside
-      className={`fixed h-full flex w-52 shrink-0 flex-col border-r border-[#e4e4e7] bg-[#fafafa] dark:border-[#1e1e21] dark:bg-[#09090b] transition-transform duration-200 sm:static sm:translate-x-0 ${menuOpen ? "translate-x-0" : "-translate-x-full"}`}
+      className={`fixed top-12 bottom-0 left-0 z-10 flex w-52 shrink-0 flex-col border-r border-[#e4e4e7] bg-[#fafafa] dark:border-[#1e1e21] dark:bg-[#09090b] transition-transform duration-200 sm:static sm:translate-x-0 pb-[env(safe-area-inset-bottom)] ${menuOpen ? "translate-x-0" : "-translate-x-full"}`}
     >
-      <nav className="flex-1 py-4">
+      <nav className="min-h-0 flex-1 overflow-y-auto overscroll-contain py-4">
         <div className="mb-2 px-3">
           <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-zinc-500 dark:text-zinc-700">
             Supervisor
@@ -68,7 +68,7 @@ export function SupervisorSidebar({ menuOpen }: { menuOpen: boolean }) {
         </ul>
       </nav>
 
-      <div className="p-3 border-t border-[#e4e4e7] dark:border-[#1e1e21] space-y-3">
+      <div className="shrink-0 p-3 border-t border-[#e4e4e7] dark:border-[#1e1e21] space-y-3">
         {user && (
           <div>
             <div className="text-[12px] font-medium text-zinc-900 dark:text-zinc-200">

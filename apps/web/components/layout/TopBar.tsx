@@ -4,7 +4,7 @@ import { Bell, ChevronRight, Menu, Wifi, WifiOff } from "lucide-react";
 import React, { useState } from "react";
 
 import { useAuth } from "@/context/auth";
-import { Button, RoleBadge } from "@/components/ui";
+import { RoleBadge } from "@/components/ui";
 import { useRealtime } from "@/context/realtime";
 
 export function TopBar({
@@ -22,15 +22,16 @@ export function TopBar({
   if (!user) return null;
 
   return (
-    <header className="h-12 bg-[#fafafa] dark:bg-[#09090b] border-b border-[#e4e4e7] dark:border-[#1e1e21] flex items-center justify-between px-4 shrink-0 z-10">
-      {/* Menu Open */}
-      <Button
+    <header className="sticky top-0 h-12 bg-[#fafafa] dark:bg-[#09090b] border-b border-[#e4e4e7] dark:border-[#1e1e21] flex items-center justify-between px-4 shrink-0 z-20">
+      {/* Menu Toggle */}
+      <button
+        type="button"
         onClick={() => menuOpenAction(!menuOpen)}
         aria-label="Toggle sidebar"
-        className="block sm:hidden"
+        className="inline-flex items-center rounded-sm border border-[#e4e4e7] dark:border-[#27272a] px-2 py-0.5 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors sm:hidden"
       >
-        <Menu className="h-4 w-3" />
-      </Button>
+        <Menu className="h-3.5 w-3.5" />
+      </button>
       {/* Left: Logo / system name */}
       <div className="flex items-center gap-2">
         <span className="text-orange-500 dark:text-amber-500 font-display font-700 text-sm tracking-wider">
