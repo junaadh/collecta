@@ -2,9 +2,10 @@ import dotenv from "dotenv";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import path from "node:path";
+import { schema } from "./schema";
 
 dotenv.config({
-  path: path.resolve(import.meta.dir, "../../.env"),
+  path: path.resolve(process.cwd(), "../../.env"),
 });
 
 const {
@@ -37,4 +38,6 @@ export const pool = new Pool({
   connectionString,
 });
 
-export const db = drizzle(pool);
+export const db = drizzle(pool, {
+  schema,
+});

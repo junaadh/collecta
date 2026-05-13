@@ -6,14 +6,24 @@ import {
   loanAssignments,
   loanProducts,
   loans,
+  notifications,
   users,
 } from "./schema";
 import { hashPassword } from "./auth";
+
+function dateFromToday(days: number): string {
+  const date = new Date();
+  date.setHours(12, 0, 0, 0);
+  date.setDate(date.getDate() + days);
+
+  return date.toISOString().slice(0, 10);
+}
 
 async function main() {
   console.log("collecta: seeding database...");
 
   await db.delete(activityLogs);
+  await db.delete(notifications);
   await db.delete(collectionUpdates);
   await db.delete(loanAssignments);
   await db.delete(loans);
@@ -97,7 +107,7 @@ async function main() {
     ])
     .returning();
 
-  const [loan1, loan2, _loan3] = await db
+  const [loan1, loan2, loan3] = await db
     .insert(loans)
     .values([
       {
@@ -107,7 +117,15 @@ async function main() {
         principalAmount: "150000.00",
         outstandingAmount: "68000.00",
         overdueAmount: "12500.00",
-        dueDate: "2026-04-20",
+
+        monthlyInstallmentAmount: "7500.00",
+        installmentDueDay: 20,
+        missedInstallmentCount: 2,
+        daysPastDue: 21,
+        nextInstallmentDate: dateFromToday(8),
+        delinquencyBucket: "DPD_1_30",
+
+        dueDate: dateFromToday(-21),
         status: "ASSIGNED",
       },
       {
@@ -117,8 +135,16 @@ async function main() {
         principalAmount: "240000.00",
         outstandingAmount: "120000.00",
         overdueAmount: "18000.00",
-        dueDate: "2026-04-28",
-        status: "OVERDUE",
+
+        monthlyInstallmentAmount: "12000.00",
+        installmentDueDay: 28,
+        missedInstallmentCount: 1,
+        daysPastDue: 13,
+        nextInstallmentDate: dateFromToday(16),
+        delinquencyBucket: "DPD_1_30",
+
+        dueDate: dateFromToday(-13),
+        status: "PROMISED_TO_PAY",
       },
       {
         customerId: cust3!.id,
@@ -127,8 +153,16 @@ async function main() {
         principalAmount: "300000.00",
         outstandingAmount: "210000.00",
         overdueAmount: "25000.00",
-        dueDate: "2026-04-15",
-        status: "IN_PROGRESS",
+
+        monthlyInstallmentAmount: "15000.00",
+        installmentDueDay: 15,
+        missedInstallmentCount: 3,
+        daysPastDue: 56,
+        nextInstallmentDate: dateFromToday(3),
+        delinquencyBucket: "DPD_31_60",
+
+        dueDate: dateFromToday(-56),
+        status: "PARTIALLY_PAID",
       },
     ])
     .returning();
@@ -144,6 +178,11 @@ async function main() {
       agentId: agent2!.id,
       assignedById: supervisor!.id,
     },
+    {
+      loanId: loan3!.id,
+      agentId: agent1!.id,
+      assignedById: supervisor!.id,
+    },
   ]);
 
   await db.insert(collectionUpdates).values([
@@ -152,6 +191,7 @@ async function main() {
       agentId: agent1!.id,
       updateType: "CALL",
       status: "CONTACTED",
+      followUpDate: dateFromToday(0),
       remarks: "Customer confirmed delay and requested follow-up tomorrow.",
     },
     {
@@ -159,8 +199,19 @@ async function main() {
       agentId: agent2!.id,
       updateType: "VISIT",
       status: "PROMISED_TO_PAY",
+      promisedPaymentDate: dateFromToday(4),
+      promisedAmount: "10000.00",
+      followUpDate: dateFromToday(4),
       remarks:
         "Visited business location. Contact promised partial payment this week.",
+    },
+    {
+      loanId: loan3!.id,
+      agentId: agent1!.id,
+      updateType: "PAYMENT",
+      status: "PARTIAL_PAYMENT",
+      amountPaid: "5000.00",
+      remarks: "Customer made a partial recovery payment during field visit.",
     },
   ]);
 

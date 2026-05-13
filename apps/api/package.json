@@ -7,17 +7,20 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@collecta/db": "workspace:*",
+    "@collecta/shared": "workspace:*",
     "@hono/node-server": "^2.0.2",
+    "@hono/zod-validator": "^0.8.0",
     "bcryptjs": "^3.0.3",
     "drizzle-orm": "^0.45.2",
     "hono": "^4.12.18",
     "jsonwebtoken": "^9.0.3",
     "pg": "^8.20.0",
-    "zod": "^4.4.3",
-    "@collecta/db": "workspace:*"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/ms": "^2.1.0",
     "@types/pg": "^8.20.0",
     "drizzle-kit": "^0.31.10",
     "typescript": "latest"
