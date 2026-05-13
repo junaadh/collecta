@@ -143,3 +143,8 @@ else
 
   FORCE_NPM=1 ./scripts/run-ts.sh packages/db/seed.ts
 fi
+
+printf '\n========================================\n'
+printf '  Collecta is ready!\n\n'
+printf '  Open: http://localhost/login\n'
+printf '========================================\n'
